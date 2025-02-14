@@ -1,7 +1,4 @@
 {
-    "routes": [
-      { "src": "/(.*)", "dest": "/" }
-    ],
     "headers": [
       {
         "source": "/(.*)",
