@@ -1,16 +1,14 @@
 # Login Credentials
+- Access the website here: https://um-client.vercel.app/
 - Admin Login: 'surabhi@gmail.com'. At present, only one admin was registered into the system. Future scope will include many features including the 'Users' tab into the admin portal where admins can manage multiple users.
 - Password for all existing users including the admin is: 'Mahesh@007' 
 
 # ER Diagram
 
-<img src="./media/image2.svg" style="width:6.5in;height:4.38125in" />
-
+<img src="./media/image2.png" style="width:6.5in;height:4.38125in" />
 
 
 # DFD – Context Level
-
-# 
 
 <img src="./media/image4.svg" style="width:6.5in;height:4.69653in" />
 
@@ -20,8 +18,6 @@
 style="width:6.78972in;height:5.19167in" />
 
 # DFD – Level 1
-
-# 
 
 <img src="./media/image8.svg" style="width:6.5in;height:4.20347in" />
 
