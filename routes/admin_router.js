@@ -174,9 +174,6 @@ admin_router.delete("/deleteFaculty", async (req, res) => {
 })
 
 const groupEnrollmentsBySections = (acc, curr) => {
-    // const existingEntry = acc.find(entry => entry.SectionID
-    //     === curr.SectionID
-    // );
     const sectionEnrollments = (enrollment) => ({
         EnrollmentID: enrollment.EnrollmentID,
         grade_received: enrollment.grade_received,
@@ -196,7 +193,7 @@ export const checkAllGradesWerePosted = async () => {
 
     sections.map(section => {
         const { Section_ID, enrollments, CourseID } = section;
-        const parsedEnrollments = JSON.parse(enrollments);
+        const parsedEnrollments = enrollments;
         const sectionUngradedEnrollments = {
             SectionID: Section_ID,
             enrollments: parsedEnrollments.reduce(groupEnrollmentsBySections , []),
@@ -245,9 +242,8 @@ admin_router.put("/updateCourseEnrollmentsStatus", async (req, res) => {
         const connection = await pool.getConnection();
         let studentEnrollments = [];
         result.sections.map(section => {
-            const { Section_ID, enrollments } = section;
-            const parsedEnrollments = JSON.parse(enrollments);
-            parsedEnrollments.map((enrollment) => {
+            const { enrollments } = section;
+            enrollments.map((enrollment) => {
                 const { SectionID, EnrollmentID, grade_received, grade_posted_at, Enrollment_Status, StudentID } = enrollment;
                 studentEnrollments.push({
                     SectionID,
@@ -263,7 +259,7 @@ admin_router.put("/updateCourseEnrollmentsStatus", async (req, res) => {
             // Transaction 1 (Update All Course Progress) 
             let tempEnrollmentTableQuery = `
             CREATE TEMPORARY TABLE TempEnrollment (
-                EnrollmentID INT,
+                EnrollmentID INT PRIMARY KEY,
                 Enrollment_Status ENUM('Wait Listed', 'Enrolled', 'Course In Progress', 'Course Completed', 'Course Cancelled')
             );
         
@@ -319,7 +315,7 @@ admin_router.put("/saveProgressAndChangeSemester", async (req, res) => {
             // Transaction 2 (this SProc will calculate CGPA and updates the student table. along with that, it updates, student's creditsHoursCompleted)
             await connection.query(`call CalculateCumulativeGPA();`)
 
-            // 3rd transaction
+            // transaction 3 (update semesters)
             const updateSemesterStatusQuery = `
                 SET @next_semester_id = (
                     SELECT MIN(semester_id)
@@ -348,6 +344,7 @@ admin_router.put("/saveProgressAndChangeSemester", async (req, res) => {
                 ELSE is_completed END;`;
             await connection.query(updateSemesterStatusQuery);
 
+            // This adds a new semester record to the table 
             const addNewSemesterQuery = `
                 INSERT INTO Semester (semester_year, semester_term, isEnrollable, is_current_semester, is_completed, enrollment_deadline)
                 SELECT 
@@ -407,8 +404,7 @@ admin_router.get("/getAllStudentDetailsOfSection", async (req, res) => {
 admin_router.get("/totalStudentsEnrolledPerSemester", async (req, res) => {
     const { semesterLimit } = req.query;
     const rows = await totalStudentsEnrolledPerSemester({ semesterLimit });
-    let tempRows = rows.reverse();
-    res.send(tempRows);
+    res.send(rows);
 })
 
 admin_router.get("/getStudentDistributionByProgram", async(req, res) => {
@@ -423,7 +419,8 @@ admin_router.get("/courseEnrollmentsBySemester", async(req, res) => {
 })
 
 admin_router.get("/studentPassPercentageForCourses", async(req, res) => {
-    const rows = await studentPassPercentageForCourses();
+    const selectedCourses = req.query.courses ? JSON.parse(req.query.courses) : null;
+    const rows = await studentPassPercentageForCourses(selectedCourses);
     res.send(rows);
 })
 

@@ -20,8 +20,7 @@ export async function getTeachingSectionLimits(id) {
 export async function getAllSectionsWithCourseId(courseId) {
     const [ sections ] = await pool.query(`
         SELECT sem.semester_id, sem.is_current_semester, sem.is_completed, c.Course_ID, c.Course_Name, c.CreditHours, c.course_code,
-                CONCAT('[', 
-                        GROUP_CONCAT(
+                JSON_ARRAYAGG(
                         JSON_OBJECT(
                             'Section_ID', sec.Section_ID,
                             'Section_DeliveryMode', sec.Section_DeliveryMode,
@@ -31,7 +30,7 @@ export async function getAllSectionsWithCourseId(courseId) {
                             'SemesterID', sec.SemesterID,
                             'Faculty_ID', f.Faculty_ID, 
                             'FacultyName', CONCAT_WS(' ', f.LastName, f.FirstName))
-                    ), ']') AS sections
+                    ) AS sections
                 FROM 
                     Section sec
             INNER JOIN Semester sem ON sem.semester_id = sec.SemesterID

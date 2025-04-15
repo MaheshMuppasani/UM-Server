@@ -77,17 +77,17 @@ export async function getStudentEnrollmentsBySemester(studentID) {
             SELECT 
                 sem.semester_id, sem.semester_year, sem.semester_term, sem.is_completed, sem.is_current_semester, 
                 CONVERT_TZ(sem.enrollment_deadline, '+00:00', 'SYSTEM') AS enrollment_deadline,
-                CONCAT('[', 
-                    GROUP_CONCAT(
-                    JSON_OBJECT('Course_ID', c.Course_ID,
-                        'Course_Name', c.Course_Name,
-                        'CreditHours', c.CreditHours,
-                        'course_code', c.course_code,
-                        'Section_ID', sec.Section_ID,
-                        'Section_DeliveryMode', sec.Section_DeliveryMode,
-                        'FacultyName', CONCAT_WS(' ', f.LastName, f.FirstName),
-                        'Enrollment_Status', en.Enrollment_Status)
-                ), ']') AS courses
+                JSON_ARRAYAGG(
+                        JSON_OBJECT('Course_ID', c.Course_ID,
+                            'Course_Name', c.Course_Name,
+                            'CreditHours', c.CreditHours,
+                            'course_code', c.course_code,
+                            'Section_ID', sec.Section_ID,
+                            'Section_DeliveryMode', sec.Section_DeliveryMode,
+                            'FacultyName', CONCAT_WS(' ', f.LastName, f.FirstName),
+                            'Enrollment_Status', en.Enrollment_Status
+                        )
+                    ) AS courses
             FROM 
                 Section sec
             INNER JOIN Semester sem ON sem.semester_id = sec.SemesterID
@@ -129,17 +129,16 @@ export async function getCoursesBySemester(studentID) {
     const [rows] = await pool.query(`
             SELECT 
                 sem.semester_id, sem.semester_year, sem.semester_term, sem.is_completed, sem.is_current_semester, sem.enrollment_deadline,
-                CONCAT('[', 
-                    GROUP_CONCAT(
-                    JSON_OBJECT('Course_ID', c.Course_ID,
-                        'Course_Name', c.Course_Name,
-                        'CreditHours', c.CreditHours,
-                        'course_code', c.course_code,
-                        'Section_ID', sec.Section_ID,
-                        'Section_DeliveryMode', sec.Section_DeliveryMode,
-                        'FacultyName', CONCAT_WS(' ', f.LastName, f.FirstName),
-                        'Enrollment_Status', en.Enrollment_Status)
-                ), ']') AS courses
+                JSON_ARRAYAGG(
+                        JSON_OBJECT('Course_ID', c.Course_ID,
+                            'Course_Name', c.Course_Name,
+                            'CreditHours', c.CreditHours,
+                            'course_code', c.course_code,
+                            'Section_ID', sec.Section_ID,
+                            'Section_DeliveryMode', sec.Section_DeliveryMode,
+                            'FacultyName', CONCAT_WS(' ', f.LastName, f.FirstName),
+                            'Enrollment_Status', en.Enrollment_Status)
+                ) AS courses
             FROM 
                 Section sec
             INNER JOIN Semester sem ON sem.semester_id = sec.SemesterID

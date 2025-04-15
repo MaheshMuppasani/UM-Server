@@ -29,13 +29,6 @@ course_router.get("/getCourseByID/:id", async (req, res) => {
     res.send(course);
 })
 
-// course_router.post("/createCourse", async (req, res) => {
-//     const { Course_Name, CreditHours, Course_Description, Course_DepartmentID } = req.body;
-//     // add validation code
-//     const course = await createCourse({ Course_Name, CreditHours, Course_Description, Course_DepartmentID });
-//     res.status(201).send(course);
-// })
-
 course_router.put("/updateCourse/:id", async (req, res) => {
     const id = req.params.id;
     const updatedCourse = req.body;
@@ -107,8 +100,6 @@ course_router.put("/updateCourseContent", upload.single('file'), async (req, res
 
 course_router.delete("/deleteCourseContent", async (req, res) => {
     const { content_id } = req.body;
-    // const [existedContent] = await getCourseContent(content_id);
-    // await deleteChildContents(existedContent, content_id);
     const result = await deleteCourseContent(content_id);
     res.send(result);
 })

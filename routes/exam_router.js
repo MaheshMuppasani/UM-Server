@@ -90,13 +90,14 @@ exam_router.get("/getExamDetails", async (req, res) => {
 })
 
 exam_router.post("/submitAssignment", upload.single('file'), async (req, res) => {
-    const { exam_id, section_id, submission_text } = req.body;
+    const { exam_id, section_id, submission_text, submitted_date } = req.body;
     const student_id = req.user.userID;
     let data = {
         exam_id,
         section_id,
         submission_text,
         student_id,
+        submitted_date,
     }
     if (req.file) {
         const result = await uploadFile(req.file);
@@ -164,7 +165,6 @@ exam_router.put("/postAllSectionGrades", authenticateFaculty, async (req, res) =
 
             allExamsStatus.forEach(exam => {
                 let { grades_array, MaximumScore } = exam;
-                grades_array = JSON.parse(grades_array);
                 grades_array.map(grade => {
                     const { student_id, grade_received } = grade;
                     const index = studentGrades.findIndex(sa => sa && sa.student_id === student_id)
@@ -195,8 +195,7 @@ exam_router.put("/postAllSectionGrades", authenticateFaculty, async (req, res) =
                     grade: Grade,
                 }
             })
-            const bulkResponse = await postSectionGrades(studentGrades, sectionId);
-            // console.log(bulkResponse)
+            await postSectionGrades(studentGrades, sectionId);
             res.send('All grades posted');
             return;
         } else {
@@ -222,10 +221,10 @@ exam_router.get("/getAllStudentExamDeadlineInfo", async (req, res) => {
 
     const results = rows;
 
-    // Grouping the exams by day and time
+    // To Group the exams by day and time
     results.forEach(row => {
         const day = row.exam_day.toString().padStart(2, '0');  // Convert day to string (e.g., "24")
-        const time = row.exam_time.toString().padStart(2, '0');           // Time in "HH:MM" format
+        const time = row.exam_time.toString().padStart(2, '0'); // Time in "HH:MM" format
         const description = row.description || "";
 
         // Prepare the exam info object
@@ -238,20 +237,20 @@ exam_router.get("/getAllStudentExamDeadlineInfo", async (req, res) => {
             title: row.course_code + ' - ' + row.title,
             description
         };
-
-        // Create the nested structure: day -> time -> list of exams
+        // Constructing JSON Structure for Calendar
+        // Nested structure: day -> time -> list of exams
         if (!exams[day]) {
-            exams[day] = {};  // Create a new day object if it doesn't exist
+            exams[day] = {};  // A new day object if it doesn't exist
         }
 
         if (!exams[day][time]) {
-            exams[day][time] = [];  // Create a new time array if it doesn't exist
+            exams[day][time] = [];  // A new time array if it doesn't exist
         }
 
-        exams[day][time].push(examInfo);  // Add the exam info to the time array
+        exams[day][time].push(examInfo);  // Add Exam info to the time array
     });
 
-    // Return the structured JSON response
+    // return structured JSON response
     res.send(exams);
 })
 

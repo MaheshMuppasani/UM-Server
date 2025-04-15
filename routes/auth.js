@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { createStudent, getStudentByEmail } from "../database/studentTable.js";
 import jwt from 'jsonwebtoken';
-import { createFaculty, getFaculty, getFacultyByEmail } from "../database/facultyTable.js";
+import { getFaculty, getFacultyByEmail } from "../database/facultyTable.js";
 import { loginFormFeedbackConstants } from "./constants_router.js";
 
 const router = express.Router();
@@ -84,7 +84,7 @@ router.post("/login", async (req, res) => {
 })
 
 router.post("/register", async (req, res) => {
-    let { passwordHash, Email, FirstName, LastName, ProgramTypeID, StartSemesterID, ProgramID } = req.body;
+    let { passwordHash, Email } = req.body;
     let hash = bcrypt.hashSync(passwordHash, 10);
     const existedStudent = await getStudentByEmail(Email);
     if(existedStudent){

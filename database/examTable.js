@@ -104,13 +104,12 @@ export async function getAllSectionGrades(sectionId) {
                 ) AS total_students,
                 -- Grades of all students for the exam in an array
                 -- JSON_ARRAYAGG
-                CONCAT('[',
-                    GROUP_CONCAT(
+                JSON_ARRAYAGG(
                         CASE 
                             WHEN es.grade_received IS NOT NULL THEN es.grade_received
                             ELSE 0
-                        END), 
-                ']') AS grades_array
+                        END
+                    ) AS grades_array
             FROM Exam e
             LEFT JOIN Exam_Submission es
             ON e.ExamID = es.exam_id
@@ -134,9 +133,7 @@ export async function getAllSectionExamsStatus(sectionId) {
                     FROM Enrollment en
                     WHERE en.SectionID = e.SectionID
                 ) AS total_students,
-
-                CONCAT('[',
-                    GROUP_CONCAT(
+                JSON_ARRAYAGG(
                         JSON_OBJECT(
                         'student_id', en.StudentID,
                         'grade_received', CASE 
@@ -147,9 +144,7 @@ export async function getAllSectionExamsStatus(sectionId) {
                                 AND es_sub.student_id = en.StudentID
                             ) THEN COALESCE(es.grade_received, 0)
                             ELSE 0 END
-                                )
-                    ),
-                ']') AS grades_array
+                        )) AS grades_array
             FROM Exam e
             LEFT JOIN Enrollment en on en.SectionID = e.SectionID
             LEFT JOIN Exam_Submission es ON e.ExamID = es.exam_id AND en.StudentID = es.student_id
@@ -171,7 +166,7 @@ export async function postSectionGrades(grades, sectionId) {
     let query1 = `
     DROP TEMPORARY TABLE IF EXISTS TempGrades;
     CREATE TEMPORARY TABLE TempGrades (
-        StudentID INT,
+        StudentID INT PRIMARY KEY,
         grade_received ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'E')
     );
 

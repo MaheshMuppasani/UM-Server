@@ -1,4 +1,4 @@
-import mysql from 'mysql2'; // node package mnanager library
+import mysql from 'mysql2';
 import dotenv from 'dotenv';
 import multer from 'multer';
 dotenv.config();

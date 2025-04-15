@@ -14,14 +14,13 @@ export async function getFacultyByEmail(email) {
 export async function getFacultyCoursesBySemester(facultyID) {
     const [rows] = await pool.query(`
             SELECT sem.semester_id, sem.is_current_semester, sem.is_completed, c.Course_ID, c.Course_Name, c.CreditHours, c.course_code,
-                CONCAT('[', 
-                        GROUP_CONCAT(
-                        JSON_OBJECT(
-                            'Section_ID', sec.Section_ID,
-                            'Section_DeliveryMode', sec.Section_DeliveryMode,
-                            'Capacity', sec.capacity,
-                            'EnrollmentCount', sec.Section_EnrollmentCount)
-                    ), ']') AS sections
+                JSON_ARRAYAGG(
+                            JSON_OBJECT(
+                                'Section_ID', sec.Section_ID,
+                                'Section_DeliveryMode', sec.Section_DeliveryMode,
+                                'Capacity', sec.capacity,
+                                'EnrollmentCount', sec.Section_EnrollmentCount)
+                    ) AS sections
                 FROM 
                     Section sec
             INNER JOIN Semester sem ON sem.semester_id = sec.SemesterID

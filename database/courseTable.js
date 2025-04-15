@@ -301,10 +301,8 @@ export async function addCoursePreRequisites(CourseId, PreRequisiteCourseIDs = [
         return `(?, ?)`; // Add a placeholder for the current course and prerequisite
     });
 
-    // Join the placeholders into the query
     query += placeholders.join(', ');
 
-    // Execute the query
     const [rows] = await pool.query(query, values);
     return rows;
 }
