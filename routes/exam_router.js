@@ -9,7 +9,7 @@ import { gradeForWeightedPercentage } from './constants_router.js';
 const exam_router = express.Router();
 
 function storeAsUTC(isoString) {
-    return isoString.replace('T', ' ').replace('.000Z', '');
+    return new Date(isoString).toISOString().replace('T', ' ').slice(0, 19);
 }
 
 exam_router.post("/createExam", upload.single('file'), async (req, res) => {
