@@ -4,13 +4,17 @@ import { createExam, createSubmission, deleteExam, getAllContentExams, getAllExa
 import { uploadFile } from './course_router.js';
 import { deleteFile } from '../database/filesTable.js';
 import { authenticateFaculty, roles } from './auth.js';
-import { gradeForWeightedPercentage, gradeHonorPointsLookUp } from './constants_router.js';
+import { gradeForWeightedPercentage } from './constants_router.js';
 
 const exam_router = express.Router();
 
+function storeAsUTC(isoString) {
+    return isoString.replace('T', ' ').replace('.000Z', '');
+}
+
 exam_router.post("/createExam", upload.single('file'), async (req, res) => {
     const { Title, SectionID, ExamDueDate, MaximumScore, Instructions_data, parent_contentID } = req.body;
-    let data = { Title, SectionID, ExamDueDate, MaximumScore, Instructions_data, parent_contentID };
+    let data = { Title, SectionID, ExamDueDate: storeAsUTC(ExamDueDate), MaximumScore, Instructions_data, parent_contentID };
     if (req.file) {
         const result = await uploadFile(req.file);
         data = { ...data, file_id: result.insertId }
@@ -21,7 +25,7 @@ exam_router.post("/createExam", upload.single('file'), async (req, res) => {
 
 exam_router.put("/updateExam", upload.single('file'), async (req, res) => {
     const { ExamID, Title, ExamDueDate, MaximumScore, Instructions_data } = req.body;
-    let data = { ExamID, Title, ExamDueDate, MaximumScore, Instructions_data };
+    let data = { ExamID, Title, ExamDueDate: storeAsUTC(ExamDueDate), MaximumScore, Instructions_data };
     const [existedExam] = await getExam(ExamID);
     if (existedExam) {
         if (req.file) {
@@ -97,7 +101,7 @@ exam_router.post("/submitAssignment", upload.single('file'), async (req, res) =>
         section_id,
         submission_text,
         student_id,
-        submitted_date,
+        submitted_date: storeAsUTC(submitted_date),
     }
     if (req.file) {
         const result = await uploadFile(req.file);
