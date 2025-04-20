@@ -1,6 +1,7 @@
 # Login Credentials
+- Front-end repository: https://github.com/MaheshMuppasani/UM-Client
 - Access the website here: https://um-client.vercel.app/
-- Admin Login: 'surabhi@gmail.com'. At present, only one admin was registered into the system. Future scope will include many features including the 'Users' tab into the admin portal where admins can manage multiple users.
+- Admin Login: 'mahesh@gmail.com'. At present, only one admin was registered into the system. Future scope will include many features including the 'Users' tab into the admin portal where admins can manage multiple users.
 - Password for all existing users including the admin is: 'Mahesh@007' 
 
 # ER Diagram
