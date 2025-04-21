@@ -391,16 +391,6 @@ admin_router.put("/saveProgressAndChangeSemester", async (req, res) => {
     }
 })
 
-admin_router.get("/getAllStudentDetailsOfSection", async (req, res) => {
-    const { SectionId } = req.query;
-    if(!SectionId){
-        res.status(400).send("No Section Id Provided")
-        return;
-    }
-    const rows = await getAllStudentDetailsBySection(SectionId);
-    res.send(rows);
-})
-
 admin_router.get("/totalStudentsEnrolledPerSemester", async (req, res) => {
     const { semesterLimit } = req.query;
     const rows = await totalStudentsEnrolledPerSemester({ semesterLimit });

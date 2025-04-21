@@ -1,5 +1,6 @@
 import express from 'express';
 import { getFacultiesByProgramID, getFaculty, getFacultyCoursesBySemester } from '../database/facultyTable.js';
+import { getAllStudentDetailsBySection } from '../database/studentTable.js';
 
 const faculty_router = express.Router();
 
@@ -25,6 +26,16 @@ faculty_router.get("/getCoursesBySemester", async(req, res) => {
 faculty_router.get("/getFacultiesByProgramID/:programId", async(req, res) => {
     const { programId } = req.params;
     const rows = await getFacultiesByProgramID(Number(programId));
+    res.send(rows);
+})
+
+faculty_router.get("/getAllStudentDetailsOfSection", async (req, res) => {
+    const { SectionId } = req.query;
+    if(!SectionId){
+        res.status(400).send("No Section Id Provided")
+        return;
+    }
+    const rows = await getAllStudentDetailsBySection(SectionId);
     res.send(rows);
 })
 
